@@ -6,11 +6,11 @@
 @(define-footnote notes2-2 footnotes2-2)
 
 
-@title{索引（the index）}
+@title[#:tag "the-index"]{索引（the index）}
 
 
 
-@section{索引：见一见中间人}
+@section[#:tag "meet-the-middle-man"]{索引：见一见中间人}
 
 在你的数据文件（存储在文件系统上）与Git二进制对象（存储在代码仓库里）之间，存在着一位多少有点奇怪的实体：Git索引。这匹怪兽有点难于理解，部分原因是，它有个倒霉名字。因为它指向你用add命令新创建出来的的树与二进制对象的集合，在这个意义上它是一份索引。这些新创建的对象很快就会绑定到一棵新的树上用以进行提交---但在那之前，只有通过“索引”才能索引到它们。这意味着，如果你用reset命令把某个已登记的改动从索引里取消登记了，你等于是造出了一个blob孤儿，它会在未来的某个时间被系统删掉。
 
@@ -50,7 +50,7 @@ $ git commit -m "Second commit message"
 
 @(footnotes2-1)
 
-@section{让索引更进一步}
+@section[#:tag "taking-the-index-further"]{让索引更进一步}
 
 我想想，索引...通过它你可以提前登记一组改动，如此迭代地构建起一个补丁，最后再提交到仓库。嗯，我好像在哪儿听过这个概念...
 

@@ -1,15 +1,15 @@
 #lang scribble/manual
 
 
-@title{重置（reset）}
+@title[#:tag "reset"]{重置（reset）}
 
-@section{重置，还是毁灭？}
+@section[#:tag "to-reset-or-not-to-reset"]{重置，还是毁灭？}
 
 Git里面最难掌握的命令之一就是@code{reset}（重置），它烦人的频度似乎比别的命令都要高。这也是可以理解的，毕竟它有潜力同时改变你的当前工作树和你当前HEAD的指向。因此我想对这个命令作一个简述，应该会有所帮助。
 
 本质上讲，@code{reset}是一个指针编辑器，索引编辑器，以及工作树编辑器。这已经挺让人困惑的了，毕竟它能做这么多事。下面我们仔细看看这三种模式有什么区别，以及它们是如何恰到好处地组装进Git的commit模型的。
 
-@section{混合重置}
+@section[#:tag "doing-a-mixed-reset"]{混合重置}
 
 如果你用@code{--mixed}选项（或者不提供选项，这就是默认选项），reset命令你的索引中部分内容连同HEAD指针一并进行回转操作，以匹配给定的commit。与@code{--soft}的主要区别是，@code{--soft}只改变HEAD的指向，不碰索引。
 
@@ -19,7 +19,7 @@ $ git reset HEAD  # 删除索引里所有已登记的内容
 $ git add foo.c  # 刚搞错了，重新加上
 }
 
-@section{软重置}
+@section[#:tag "doing-a-soft-reset"]{软重置}
 如果用@code{--soft}选项来进行@code{reset}，就跟你单纯把HEAD的指向变为另一个提交是一样的。工作树不会变。也就是说下面这两个命令是等价的：
 
 @verbatim{
@@ -39,7 +39,7 @@ $ git update-ref HEAD HEAD^  # 跟上面同一件事情，尽管是手动地
 @image["images/soft-reset-pull.png"]
 
 
-@section{硬重置}
+@section[#:tag "doing-a-hard-reset"]{硬重置}
 
 硬重置（@code{--hard}选项）是有潜力造成非常糟糕的后果的，因它有能力同时做两件不同的事情：首先，如果你在当前HEAD的基础上进行硬重置，你工作树里的所有改动都会被擦除，以保证你当前的文件跟HEAD的内容完全匹配。
 

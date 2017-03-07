@@ -2,17 +2,30 @@
 
 @(require scriblib/footnote)
 
+@(define-footnote notes footnotes)
 @(define-footnote notes2 footnotes2)
 @(define-footnote notes3 footnotes3)
 @(define-footnote notes4 footnotes4)
 @(define-footnote notes5 footnotes5)
 
 
-@title{代码仓库（repository）}
+@title[#:tag "repository"]{代码仓库（repository）}
 
-@include-section["1-1-content-tracking.scrbl"]
+@section[#:tag "directory-content-tracking"]{代码仓库：目录里的内容追踪}
 
-@section{blob的介绍}
+前面已经提过，Git做的是一件很原始的事情：为目录里的内容维护一系列快照。确认了这一基本任务，Git的很多内部设计就比较好理解了。
+
+Git代码仓库的设计在多方面看起来都是比照着Unix文件系统的结构来的：@italic{文件系统}从一个根目录展开，根目录包含其它目录，多数目录里还包含叶节点，即@italic{文件}，文件存放着数据。关于文件内容的元数据（meta-data）存储在两类位置：文件名存储在该文件所在的目录文件中；文件的大小、文件类型、权限等信息则存储在指向这个文件的i-node@notes{译注：@hyperlink["https://zh.wikipedia.org/wiki/Inode"]{i-node}是Unix文件系统使用的一种数据结构}中。每个i-node都有一个唯一的编号用来标识它所关联的文件内容。你可能会有多个目录条目指向同一个i-node（即硬链接，hard links），但文件系统上真正“保管”文件内容的是这个i-node。
+
+Git的内部设计与上述结构惊人地相似，尽管有一两个关键的区别。首先，文件的内容存放在一些@italic{二进制对象（blob）}@notes{译注：blob--- Binary Large OBject (BLOB) }中，作为@italic{树结构（tree）}的叶节点，对应于文件系统中的文件。而Git的@italic{树}的跟文件系统的目录结构如出一辙。然后，正如i-node以系统分配的编号来唯一标识，这里的blob是以SHA1算法对其大小和内容计算得到的哈希id来命名。这样做的意图没有别的，就是要生成一个值，就像i-node，但还多了另外两个属性：第一，这个值可以验证blob的内容永远不变；第二，同样的内容永远会由一摸一样的blob来保存，不管它出现在哪儿（比如在不同的commits里，不同的repository里，甚至在互联网上的任何地方）。如果有多棵树引用了同样名字的blob，就相当于是硬连接（hard-linking）：blob不会从你的代码仓库消失，只要还有至少一个链接指向它。
+
+Git的blob和文件系统的文件有一个区别是，blob不存储关于自己内容的元数据（metadata）。所有这类信息都在blob所在的树上。可能有一棵树知道这个blob是一个名为“foo”的文件，它创建于2004年8月，而另一棵树可能认为同样的blob是一个名为“bar”的文件，而且创建时间在5年之后。然而在正常的文件系统里，类似这样的两个内容完全相同但元信息不同的文件一定是以两个独立的文件存在的。为什么会有这样的区别？主要原因是，文件系统设计成这样是为了支持文件的变化，但Git不用。Git仓库里保存的数据都是不可变的@notes{译注：Git保存的都是文件快照}，这一特点导致Git需要不同的设计。而这样设计结果还带来了别的好处，即存储空间大大节省，因为所有拥有同样内容的对象都可以共享同一份存储，不管它出现在仓库的什么位置。
+
+
+@(footnotes)
+
+
+@section[#:tag "introducing-the-blob"]{blob的介绍}
 
 基本的图景已经描绘出来了，下面我们来看几个实际的例子。首先我要创建一个Git仓库作为样例，在这个仓库里我将会自底向上地展示Git是怎么工作的。你可以一边阅读一边跟着操作：
 
@@ -50,7 +63,7 @@ Hello, world!
 
 如此，Git里用blob来表示最基本的数据单元，而整个系统实际上就是关于blob的管理。
 
-@section{Blobs存储在树结构中}
+@section[#:tag "blobs-are-stored-in-trees"]{Blobs存储在树结构中}
 
 你的文件内容存储在blob里，但这些blob基本上没有什么特征。没有文件名，没有结构---毕竟它们只是“二进制对象”。
 
@@ -112,7 +125,7 @@ blob
 
 
 
-@section{树结构如何生成}
+@section[#:tag "how-trees-are-made"]{树结构如何生成}
 
 每个commit掌管一棵且仅一棵树，不过树是如何生成的？我们知道blob是通过把你的文件内容填进blob来创建的---而树掌管blob---但我们还没看见承载blob的树是如何生成的，或者树是怎样与其父commit链接起来的。
 
@@ -190,7 +203,7 @@ Date:   Mon Apr 14 11:14:58 2008 -0400
 @(footnotes2)
 
 
-@section{提交之美}
+@section[#:tag "the-beauty-of-commits"]{提交之美}
 
 有些版本管理系统把“分支”做成了很神奇的东西，通常把它们跟“主线”或者“树干“明显区分开来，或者把“分支”认为是与commits非常不同的概念。然而在Git里，并没有分支这种专门的实体：只有二进制对象（blobs），树结构（trees）和提交（commits）。由于commit可以有一个或多个父提交，这些父提交还可以有父提交，这种组织关系使得一个单独的commit就可以被看作一个分支：因为它可以回溯出得到这个commit的全部历史信息。
 
@@ -227,7 +240,7 @@ $ git checkout 5f1bc85
 
 
 
-@section{提交的别名们}
+@section[#:tag "a-commit-by-any-other-name"]{提交的别名们}
 
 
 理解提交是掌握Git的关键。当你脑子里只有提交的拓扑结构，而把那些让人困惑的分支啦、标签啦、本地和远端仓库啦，等等统统抛开的时候，你就知道你已到达了智慧的禅之高原。好在这种程度的理解不需要你自断手臂。。。不过你若正在考虑的话我觉得你很可以。
@@ -313,7 +326,7 @@ $ git log --grep='foo' --author='johnw' --since="1 month ago" master..
 
 
 
-@section{分支，以及强大的rebase命令}
+@section[#:tag "branching-and-the-power-of-rebase"]{分支，以及强大的rebase命令}
 
 Git里用来操作commits的命令中，有个名字很不起眼的rebase命令是最厉害的之一。从根本上讲，你开发的每一个分支都有一个或多个“基础提交（base commit）”：分支就是从这个（或若干个）commits开始分出来的。下图是一个很典型的场景。注意箭头是往时间更早的方向指的，因为每个提交里包含其父提交的信息，可以索引出其父提交，而非子提交。所以图中D和Z两个提交代表着各自分支的头部（head）。
 
@@ -391,7 +404,7 @@ $ git rebase D # 将Z的基础提交指向D
 
 @(footnotes5)
 
-@section{交互式rebase}
+@section[#:tag "interactive-rebasing"]{交互式rebase}
 
 上面的例子里运行rebase的时候，它自动重写从@code{W}到@code{Z}的所有提交，以保证Z分支变成以D提交（即D分支的head）为基准的分支。不过，你是可以全权控制该重写过程的。如果给@code{rebase}命令加上@code{-i}选项，系统会弹出一个编辑窗口，让你选择对本地Z分支的每个commit分别做什么操作：
 

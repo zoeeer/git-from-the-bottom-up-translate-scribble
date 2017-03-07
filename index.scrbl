@@ -12,5 +12,5 @@
 @include-section["docs/2.the-index.scrbl"]
 @include-section["docs/3.reset.scrbl"]
 @include-section["docs/4.stashing-and-the-reflog.scrbl"]
-@;include-section["docs/5.conclusion.scrbl"]
-@;include-section["docs/6.further-reading.scrbl"]
+@include-section["docs/5.conclusion.scrbl"]
+@include-section["docs/6.further-reading.scrbl"]
