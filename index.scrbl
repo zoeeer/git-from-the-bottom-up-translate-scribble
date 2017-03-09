@@ -2,7 +2,7 @@
 
 @title{自底向上学习Git}
 @author{John Wiegley}
-@author{翻译：zoeeer}
+@author{翻译：Rang T}
 @hyperlink["https://jwiegley.github.io/git-from-the-bottom-up/"]{原文链接: Git from the Bottom Up}
 
 @(table-of-contents)
